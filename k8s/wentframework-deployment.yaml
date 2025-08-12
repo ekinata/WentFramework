@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wentframework-deployment
+  namespace: wentframework
+  labels:
+    app: wentframework
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: wentframework
+  template:
+    metadata:
+      labels:
+        app: wentframework
+    spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: busybox:1.35
+        command: ['sh', '-c']
+        args:
+        - |
+          until nc -z postgres-service 5432; do
+            echo "Waiting for postgres...";
+            sleep 2;
+          done;
+          echo "PostgreSQL is ready!";
+      - name: migrate
+        image: wentframework:latest
+        command: ["./wentframework"]
+        args: ["migrate"]
+        envFrom:
+        - configMapRef:
+            name: wentframework-config
+        - secretRef:
+            name: wentframework-secrets
+      containers:
+      - name: wentframework
+        image: wentframework:latest
+        ports:
+        - containerPort: 3000
+        command: ["./wentframework"]
+        args: ["serve"]
+        envFrom:
+        - configMapRef:
+            name: wentframework-config
+        - secretRef:
+            name: wentframework-secrets
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      restartPolicy: Always

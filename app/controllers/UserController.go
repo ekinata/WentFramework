@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"went-framework/database"
-	"went-framework/models"
+	"went-framework/app/database"
+	"went-framework/app/models"
 
 	"github.com/gorilla/mux"
 )

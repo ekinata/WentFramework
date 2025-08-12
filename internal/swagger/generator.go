@@ -1,3 +1,7 @@
+//
+//    TODO: Generation should auto-detect and include all models for default crud operations
+//
+
 package swagger
 
 import (
@@ -10,7 +14,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"strings"
-	"went-framework/models"
+	"went-framework/app/models"
 
 	"github.com/gorilla/mux"
 )

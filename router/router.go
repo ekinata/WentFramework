@@ -7,8 +7,9 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"went-framework/controllers"
-	"went-framework/swagger"
+	"went-framework/app/controllers"
+	"went-framework/internal/middleware"
+	"went-framework/internal/swagger"
 
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -17,6 +18,13 @@ import (
 // SetupRoutes configures and returns the main router with all routes
 func SetupRoutes() *mux.Router {
 	router := mux.NewRouter()
+
+	// Apply global middleware
+	router.Use(middleware.MiddlewareChain(
+		middleware.RequestIDMiddleware,
+		middleware.CORSMiddleware,
+		middleware.LoggingMiddleware,
+	))
 
 	// API routes
 	api := router.PathPrefix("/api").Subrouter()

@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: wentframework
+
+resources:
+- namespace.yaml
+- configmap.yaml
+- secrets.yaml
+- postgres-pv.yaml
+- postgres-deployment.yaml
+- postgres-service.yaml
+- wentframework-deployment.yaml
+- wentframework-service.yaml
+- ingress.yaml
+- hpa.yaml
+
+# Common labels applied to all resources
+commonLabels:
+  app.kubernetes.io/name: wentframework
+  app.kubernetes.io/version: "1.0.0"
+  app.kubernetes.io/component: api
+  app.kubernetes.io/part-of: wentframework
+
+# Images to be used
+images:
+- name: wentframework
+  newTag: latest

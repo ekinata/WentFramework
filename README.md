@@ -12,33 +12,38 @@ A lightweight Go framework for building RESTful APIs with PostgreSQL database in
 - ⚙️ **Environment Configuration** with .env file support
 - 🏗️ **Code Generation** for models and controllers
 - 📦 **Docker Support** with docker-compose
+- ☸️ **Kubernetes Ready** with complete manifests and deployment scripts
 - 🔍 **CRUD Operations** with JSON API responses
 - 📚 **Auto-Swagger Generation** with interactive API documentation
+- 📝 **Flexible Logging System** with multiple storage backends (database, file, console)
+- 🎯 **Clean Architecture** with separated command functions
+- 🔄 **Global Request/Response Logging** with automatic HTTP middleware
+- 🛡️ **Security Features** with CORS support and sensitive data filtering
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Configuration](#configuration)
-- [Database Setup](#database-setup)
-- [API Usage](#api-usage)
-- [API Documentation](#api-documentation)
 - [Commands](#commands)
 - [Project Structure](#project-structure)
+- [API Usage](#api-usage)
+- [Logging](#logging)
+- [Deployment](#deployment)
 - [Development](#development)
 
 ## Installation
 
 ### Prerequisites
 
-- Go 1.24.4 or higher
+- Go 1.21 or higher
 - Docker and Docker Compose (for PostgreSQL)
 - Git
 
 ### Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/ekinata/WentFramework.git
 cd WentFramework
 ```
 
@@ -56,12 +61,7 @@ go mod tidy
 docker-compose up -d
 ```
 
-This will start a PostgreSQL container with the following configuration:
-- Host: `localhost`
-- Port: `5432`
-- Database: `went_test`
-- User: `went_user`
-- Password: `went_password`
+This will start a PostgreSQL container with the default configuration.
 
 ### 2. Set Up Environment
 
@@ -71,191 +71,210 @@ Copy the example environment file:
 cp .env.example .env
 ```
 
-The default `.env` file is already configured to work with the Docker PostgreSQL setup.
+The default `.env` file is configured to work with the Docker PostgreSQL setup.
 
 ### 3. Run Database Migrations
 
 ```bash
-go run main.go migrate
+go run . migrate
 ```
 
 ### 4. Start the Server
 
 ```bash
-go run main.go serve
+go run . serve
 ```
 
-The server will start on `http://localhost:3003` (or the port specified in your `.env` file).
+The server will start on the configured port (default: `http://localhost:3000`).
 
 ### 5. Generate API Documentation
 
 ```bash
-go run main.go swagger:generate
+go run . swagger:generate
 ```
-
-This will generate interactive Swagger documentation for your API.
 
 ### 6. Test the API
 
 ```bash
-# Health check
-curl http://localhost:3003/api/health
+# Health check (if available)
+curl http://localhost:3000/api/health
 
 # Get all users
-curl http://localhost:3003/api/users
+curl http://localhost:3000/api/users
 
 # Create a user
-curl -X POST http://localhost:3003/api/users \
+curl -X POST http://localhost:3000/api/users \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com"}'
 ```
-
-### 7. View API Documentation
-
-Once the server is running, you can access the interactive API documentation:
-
-- **Swagger UI**: `http://localhost:3003/swagger/`
-- **OpenAPI JSON**: `http://localhost:3003/swagger.json`
 
 ## Configuration
 
 ### Environment Variables
 
-The project uses environment variables for configuration. Copy `.env.example` to `.env` and modify as needed:
+The project uses environment variables for configuration. Key variables include:
 
 ```properties
 # Database Configuration
 DB_HOST=localhost
 DB_PORT=5432
-DB_USER=went_user
-DB_PASSWORD=went_password
-DB_NAME=went_test
+DB_USER=your_user
+DB_PASSWORD=your_password
+DB_NAME=your_database
 DB_SSLMODE=disable
 
 # Server Configuration
-SERVER_PORT=3003
+SERVER_PORT=3000
 SERVER_HOST=0.0.0.0
 
 # Application Configuration
 APP_ENV=development
 APP_NAME=WentFramework
 APP_VERSION=1.0.0
-
-# JWT Configuration (for future use)
-JWT_SECRET=your-super-secure-jwt-secret-key-change-this-in-production
-JWT_EXPIRY=24h
-
-# Logging
-LOG_LEVEL=info
-LOG_FORMAT=json
 ```
 
-## Database Setup
+## Commands
 
-### Using Docker (Recommended)
+WentFramework provides a clean command-line interface for various operations:
+
+### Server Commands
 
 ```bash
-# Start PostgreSQL container
-docker-compose up -d
+# Start the HTTP server
+go run . serve
 
-# Check if container is running
-docker-compose ps
-
-# Stop the container
-docker-compose down
+# Test database connection
+go run . db:test
 ```
 
-### Manual PostgreSQL Setup
-
-If you prefer to use a local PostgreSQL installation:
-
-1. Install PostgreSQL
-2. Create a database and user
-3. Update the `.env` file with your database credentials
-
-### Testing Database Connection
+### Migration Commands
 
 ```bash
-go run main.go db:test
+# Run migrations (create/update tables)
+go run . migrate
+
+# Fresh migration (drop and recreate all tables)
+go run . migrate:fresh
+
+# Rollback migrations (drop all tables)
+go run . migrate:rollback
 ```
 
-This command will test the database connection and display the configuration being used.
+### Code Generation Commands
+
+```bash
+# Generate model and controller files
+go run . make:model ModelName
+
+# Example: Create a Post model
+go run . make:model Post
+```
+
+This will create:
+- `app/models/Post.go` - Model file with GORM integration
+- `app/controllers/PostController.go` - Controller file with CRUD operations
+
+### Documentation Commands
+
+```bash
+# Generate/update Swagger API documentation
+go run . swagger:generate
+```
+
+### Help
+
+```bash
+# Show available commands
+go run .
+```
+
+## Project Structure
+
+```
+WentFramework/
+├── .env                     # Environment variables (create from .env.example)
+├── .env.example            # Environment variables template
+├── .gitignore              # Git ignore rules
+├── docker-compose.yml      # PostgreSQL container configuration
+├── Dockerfile              # Multi-stage Docker build for the application
+├── go.mod                  # Go module file
+├── go.sum                  # Go dependencies
+├── main.go                 # Main application entry point (CLI routing only)
+├── command.go              # Command implementations (refactored)
+├── app/                    # Application core
+│   ├── controllers/        # HTTP request handlers
+│   │   └── UserController.go
+│   ├── database/           # Database connection and configuration
+│   │   └── connection.go
+│   └── models/             # Data models and database operations
+│       └── User.go
+├── docs/                   # Generated documentation
+│   ├── swagger.json       # Auto-generated OpenAPI specification
+│   └── LOG.md             # Logging system documentation
+├── internal/               # Internal packages
+│   ├── commands/           # Database command implementations
+│   │   └── migrate.go
+│   ├── log/                # Logging system
+│   │   └── log.go          # Logging system implementation
+│   ├── middleware/         # HTTP middleware
+│   │   └── logging.go      # Request/response logging middleware
+│   ├── swagger/            # API documentation generation
+│   │   └── generator.go
+│   └── templates/          # Code generation templates
+│       ├── controller.tpl
+│       └── model.tpl
+├── logs/                   # Log files (created when LOG_STORAGE=file)
+├── k8s/                    # Kubernetes deployment manifests
+│   ├── namespace.yaml     # Kubernetes namespace
+│   ├── configmap.yaml     # Configuration management
+│   ├── secrets.yaml       # Sensitive data management
+│   ├── postgres-*.yaml    # PostgreSQL deployment and services
+│   ├── wentframework-*.yaml # Application deployment and services
+│   ├── ingress.yaml       # Ingress configuration
+│   ├── hpa.yaml           # Horizontal Pod Autoscaler
+│   ├── deploy.sh          # Automated deployment script
+│   ├── cleanup.sh         # Cleanup script
+│   └── README.md          # Kubernetes deployment guide
+├── internal/               # Internal packages
+│   ├── commands/           # Database command implementations
+│   │   └── migrate.go
+│   ├── swagger/            # API documentation generation
+│   │   └── generator.go
+│   └── templates/          # Code generation templates
+│       ├── controller.tpl
+│       └── model.tpl
+├── router/                 # HTTP routing configuration
+│   └── router.go
+└── templates/              # Additional templates (legacy)
+    ├── controller.tpl
+    └── model.tpl
+```
 
 ## API Usage
 
 ### Base URL
 
 ```
-http://localhost:3003/api
+http://localhost:3000/api
 ```
 
-### Authentication
+### User Endpoints
 
-Currently, the API doesn't require authentication. JWT support is planned for future releases.
+The framework includes a complete User model with CRUD operations:
 
-### Endpoints
-
-#### Health Check
-
-```http
-GET /api/health
-```
-
-**Response:**
-```json
-{
-  "status": "healthy",
-  "message": "Server is running"
-}
-```
-
-#### Users
-
-##### Get All Users
+#### Get All Users
 
 ```http
 GET /api/users
 ```
 
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "Users retrieved successfully",
-  "data": [
-    {
-      "id": 1,
-      "name": "John Doe",
-      "email": "john@example.com",
-      "created_at": "2025-07-31T15:42:18.792477+03:00",
-      "updated_at": "2025-07-31T15:42:18.792477+03:00"
-    }
-  ]
-}
-```
-
-##### Get User by ID
+#### Get User by ID
 
 ```http
 GET /api/users/{id}
 ```
 
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "User retrieved successfully",
-  "data": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "created_at": "2025-07-31T15:42:18.792477+03:00",
-    "updated_at": "2025-07-31T15:42:18.792477+03:00"
-  }
-}
-```
-
-##### Create User
+#### Create User
 
 ```http
 POST /api/users
@@ -267,22 +286,7 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "User created successfully",
-  "data": {
-    "id": 1,
-    "name": "John Doe",
-    "email": "john@example.com",
-    "created_at": "2025-07-31T15:42:18.792477+03:00",
-    "updated_at": "2025-07-31T15:42:18.792477+03:00"
-  }
-}
-```
-
-##### Update User
+#### Update User
 
 ```http
 PUT /api/users/{id}
@@ -294,271 +298,369 @@ Content-Type: application/json
 }
 ```
 
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "User updated successfully",
-  "data": {
-    "id": 1,
-    "name": "John Updated",
-    "email": "john.updated@example.com",
-    "created_at": "2025-07-31T15:42:18.792477+03:00",
-    "updated_at": "2025-07-31T15:43:10.469621+03:00"
-  }
-}
-```
-
-##### Delete User
+#### Delete User
 
 ```http
 DELETE /api/users/{id}
 ```
 
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "User 1 deleted successfully"
-}
-```
+## Logging
 
-### Error Responses
+WentFramework includes a comprehensive logging system that supports multiple storage backends and formats, plus automatic HTTP request/response logging middleware.
 
-All error responses follow this format:
+### Quick Start
 
-```json
-{
-  "status": "error",
-  "message": "Error description"
-}
-```
+The logging system is automatically initialized and ready to use:
 
-Common HTTP status codes:
-- `400 Bad Request` - Invalid input data
-- `404 Not Found` - Resource not found
-- `500 Internal Server Error` - Server error
-
-## API Documentation
-
-WentFramework provides **automatic API documentation** through Swagger/OpenAPI integration. The documentation is generated automatically from your models, controllers, and routes.
-
-### Interactive Swagger UI
-
-Access the interactive API documentation at:
-```
-http://localhost:3003/swagger/
-```
-
-The Swagger UI provides:
-- 📖 **Complete API Reference** - All endpoints with detailed descriptions
-- 🧪 **Interactive Testing** - Test APIs directly from the browser
-- 📝 **Request/Response Examples** - Sample data for all endpoints
-- 🔍 **Schema Documentation** - Complete data model definitions
-- 📋 **Parameter Details** - Required and optional parameters for each endpoint
-
-### OpenAPI Specification
-
-Get the machine-readable OpenAPI 3.0 specification:
-```
-http://localhost:3003/swagger.json
-```
-
-### Auto-Generation Features
-
-The Swagger documentation is automatically generated using reflection and includes:
-
-- **Model Schemas** - Automatically extracted from Go structs in `models/`
-- **API Endpoints** - Dynamically discovered from your router configuration  
-- **Request/Response Types** - Inferred from controller function signatures
-- **Parameter Validation** - Automatically documented from route parameters
-- **Example Data** - Generated examples for all data types
-
-### Generating Documentation
-
-Update the API documentation after making changes:
-
-```bash
-# Generate/update Swagger documentation
-go run main.go swagger:generate
-
-# Start server with updated docs
-go run main.go serve
-```
-
-The documentation will be automatically served when you start the server.
-
-### Customizing Documentation
-
-The auto-generated documentation can be customized by:
-
-1. **Adding struct tags** to your models for better examples
-2. **Using descriptive function names** in controllers
-3. **Following RESTful naming conventions** for automatic categorization
-
-Example model with documentation tags:
 ```go
-type User struct {
-    ID        uint      `json:"id" gorm:"primaryKey" example:"1"`
-    Name      string    `json:"name" gorm:"not null" example:"John Doe"`
-    Email     string    `json:"email" gorm:"uniqueIndex;not null" example:"john@example.com"`
-    CreatedAt time.Time `json:"created_at" example:"2025-07-31T15:42:18.792477+03:00"`
-    UpdatedAt time.Time `json:"updated_at" example:"2025-07-31T15:42:18.792477+03:00"`
+import "went-framework/internal/logger"
+
+// Basic logging
+log.Info("Application started")
+log.Error("Something went wrong")
+
+// Contextual logging
+log.Info("User login", map[string]interface{}{
+    "user_id": 123,
+    "ip":      "192.168.1.100",
+})
+```
+
+### Global HTTP Request/Response Logging
+
+All HTTP requests and responses are automatically logged with detailed information:
+
+- **Request Details**: Method, URL, headers, body, client IP, user agent
+- **Response Details**: Status code, headers, body, content type
+- **Performance Metrics**: Request duration, timestamp
+- **Security**: Sensitive headers (Authorization, Cookie) are automatically redacted
+- **Smart Filtering**: Health checks and static files are excluded to reduce noise
+
+#### Example Log Output
+
+```json
+{
+  "level": "info",
+  "message": "HTTP Request",
+  "context": {
+    "type": "http_request",
+    "request": {
+      "method": "POST",
+      "url": "/api/users",
+      "path": "/api/users",
+      "remote_addr": "192.168.1.100",
+      "user_agent": "curl/7.64.1",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "[REDACTED]"
+      },
+      "body": {
+        "name": "John Doe",
+        "email": "john@example.com"
+      }
+    },
+    "response": {
+      "status_code": 201,
+      "status_text": "Created",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "status": "success",
+        "message": "User created successfully"
+      }
+    },
+    "duration_ms": 45,
+    "duration": "45.123ms"
+  }
 }
 ```
 
-## Commands
+### Configuration
 
-### Server Commands
+Configure logging via environment variables:
+
+```properties
+# Log level (debug/info/warn/error)
+LOG_LEVEL=info
+
+# Log format (json/text)  
+LOG_FORMAT=json
+
+# Log storage (db/file/stdout)
+LOG_STORAGE=stdout
+```
+
+### Storage Options
+
+1. **Console Output** (`LOG_STORAGE=stdout`) - Best for development and containers
+2. **File Storage** (`LOG_STORAGE=file`) - Daily rotating files in `logs/` directory  
+3. **Database Storage** (`LOG_STORAGE=db`) - Searchable logs in PostgreSQL
+
+### API Endpoints
+
+#### View Recent Logs
+
+```http
+GET /api/logs
+```
+
+Query parameters:
+- `limit` - Number of logs to retrieve (default: 100)
+- `level` - Filter by log level (debug/info/warn/error)
+
+Example:
+```bash
+# Get last 50 error logs
+curl "http://localhost:3003/api/logs?limit=50&level=error"
+```
+
+### Features
+
+- ✅ Multiple log levels (DEBUG, INFO, WARN, ERROR)
+- ✅ Structured logging with context
+- ✅ **Automatic HTTP request/response logging**
+- ✅ **Global middleware integration**
+- ✅ **Sensitive data redaction**
+- ✅ **Performance tracking**
+- ✅ **Smart filtering for noise reduction**
+- ✅ Database query performance tracking
+- ✅ Automatic fallback if primary storage fails
+- ✅ JSON and text output formats
+- ✅ RESTful log retrieval API
+
+For detailed documentation, examples, and best practices, see [docs/LOG.md](docs/LOG.md).
+
+## Deployment
+
+WentFramework supports multiple deployment options for different environments and use cases.
+
+### Docker Deployment
+
+#### Using Docker Compose (Recommended for Development)
 
 ```bash
-# Start the HTTP server
-go run main.go serve
+# Start PostgreSQL and optionally the app
+docker-compose up -d
 
-# Test database connection
-go run main.go db:test
+# Build and run the application
+docker build -t wentframework:latest .
+docker run -p 3000:3000 --env-file .env wentframework:latest serve
 ```
 
-### Documentation Commands
+#### Standalone Docker
 
 ```bash
-# Generate/update Swagger API documentation
-go run main.go swagger:generate
+# Build the image
+docker build -t wentframework:latest .
+
+# Run with environment variables
+docker run -p 3000:3000 \
+  -e DB_HOST=your-db-host \
+  -e DB_USER=your-db-user \
+  -e DB_PASSWORD=your-db-password \
+  wentframework:latest serve
 ```
 
-### Migration Commands
+### Kubernetes Deployment
+
+WentFramework includes complete Kubernetes manifests for production deployment.
+
+#### Quick Kubernetes Deployment
 
 ```bash
-# Run migrations (create/update tables)
-go run main.go migrate
+# Deploy everything with one command
+./k8s/deploy.sh
 
-# Fresh migration (drop and recreate tables)
-go run main.go migrate:fresh
+# Access the application
+kubectl port-forward service/wentframework-service 8080:80 -n wentframework
 ```
 
-### Code Generation Commands
+#### What's Included
 
+- **Namespace isolation** - Dedicated `wentframework` namespace
+- **PostgreSQL database** - Persistent storage with automatic backups
+- **Auto-scaling** - Horizontal Pod Autoscaler based on CPU/Memory
+- **Load balancing** - LoadBalancer service for external access
+- **Ingress support** - Domain-based routing with TLS ready
+- **Health checks** - Liveness and readiness probes
+- **Auto-migration** - Database migrations run automatically on startup
+
+#### Production Features
+
+- **3 replica minimum** with auto-scaling up to 10 pods
+- **Resource limits** and requests for optimal scheduling
+- **Persistent storage** for PostgreSQL data
+- **ConfigMap** and **Secrets** for configuration management
+- **Rolling updates** with zero-downtime deployments
+
+See the [Kubernetes README](k8s/README.md) for detailed deployment instructions.
+
+### Cloud Deployment
+
+#### Google Cloud Platform (GKE)
 ```bash
-# Generate model, controller, and migration files
-go run main.go make:model ModelName
+# Create GKE cluster
+gcloud container clusters create wentframework-cluster
 
-# Example: Create a Post model
-go run main.go make:model Post
+# Deploy
+./k8s/deploy.sh production
 ```
 
-This will create:
-- `models/Post.go` - Model file
-- `controllers/PostController.go` - Controller file
-- `migrations/timestamp_create_posts_table.go` - Migration file
-
-### Help
-
+#### Amazon Web Services (EKS)
 ```bash
-# Show available commands
-go run main.go
+# Create EKS cluster
+eksctl create cluster --name wentframework-cluster
+
+# Deploy
+./k8s/deploy.sh production
 ```
 
-## Project Structure
+#### Microsoft Azure (AKS)
+```bash
+# Create AKS cluster
+az aks create --resource-group myRG --name wentframework-cluster
 
-```
-WentFramework/
-├── .env                     # Environment variables (create from .env.example)
-├── .env.example            # Environment variables template
-├── .gitignore              # Git ignore rules
-├── docker-compose.yml      # PostgreSQL container configuration
-├── go.mod                  # Go module file
-├── go.sum                  # Go dependencies
-├── main.go                 # Main application entry point
-├── commands/               # Command implementations
-│   └── migrate.go         # Migration commands
-├── controllers/            # HTTP request handlers
-│   └── UserController.go  # User CRUD operations
-├── database/               # Database connection and configuration
-│   └── connection.go      # Database connection setup
-├── docs/                   # Generated documentation
-│   └── swagger.json       # Auto-generated OpenAPI specification
-├── models/                 # Data models and database operations
-│   └── User.go           # User model
-├── router/                 # HTTP routing configuration
-│   └── router.go         # Route definitions and setup
-├── swagger/                # API documentation generation
-│   └── generator.go       # Auto-swagger generation system
-└── templates/              # Code generation templates
-    ├── controller.tpl     # Controller template
-    ├── migration.tpl      # Migration template
-    └── model.tpl          # Model template
+# Deploy
+./k8s/deploy.sh production
 ```
 
 ## Development
 
-### Adding New Models
+### Architecture Overview
 
-1. Generate the model:
-   ```bash
-   go run main.go make:model Product
-   ```
+WentFramework follows a clean architecture pattern:
 
-2. Update the model file (`models/Product.go`) with your fields
-3. Update the controller file (`controllers/ProductController.go`) with your logic
-4. Add routes in `router/router.go`
-5. Run migrations:
-   ```bash
-   go run main.go migrate
-   ```
+1. **`main.go`** - Entry point that handles CLI argument parsing and routes to appropriate commands
+2. **`command.go`** - Contains all command implementations (server, database, swagger, code generation)
+3. **`app/`** - Core application logic (models, controllers, database)
+4. **`internal/`** - Internal packages for commands, swagger generation, templates, and middleware
+5. **`router/`** - HTTP routing configuration with global middleware integration
 
-### Adding New Routes
+### Middleware System
 
-Edit `router/router.go` and add your routes to the appropriate setup function:
+WentFramework includes a comprehensive middleware system:
+
+#### Available Middleware
+
+- **`LoggingMiddleware`** - Automatic HTTP request/response logging
+- **`CORSMiddleware`** - Cross-Origin Resource Sharing support
+- **`RequestIDMiddleware`** - Unique request identifier tracking
+
+#### Global Middleware Integration
+
+All middleware is automatically applied to all routes through the router configuration:
 
 ```go
-func setupProductRoutes(api *mux.Router) {
-    api.HandleFunc("/products", controllers.GetAllProducts).Methods("GET")
-    api.HandleFunc("/products/{id}", controllers.GetProduct).Methods("GET")
-    // ... more routes
+// In router/router.go
+router := mux.NewRouter()
+
+// Apply global middleware
+router.Use(middleware.CORSMiddleware)
+router.Use(middleware.RequestIDMiddleware)
+router.Use(middleware.LoggingMiddleware)
+```
+
+#### Custom Middleware
+
+To add custom middleware, create a new function in `internal/middleware/`:
+
+```go
+func CustomMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Custom logic before request
+        next.ServeHTTP(w, r)
+        // Custom logic after request
+    })
 }
 ```
 
+Then add it to the router configuration.
+
+### Adding New Models
+
+1. Generate the model using the template:
+   ```bash
+   go run . make:model Product
+   ```
+
+2. The generated files will be:
+   - `app/models/Product.go` - With GORM integration and CRUD methods
+   - `app/controllers/ProductController.go` - With HTTP handlers
+
+3. Add routes in `router/router.go`
+
+4. Run migrations to create the database table:
+   ```bash
+   go run . migrate
+   ```
+
+### Code Generation Templates
+
+The framework uses Go templates for code generation:
+
+- **`internal/templates/model.tpl`** - GORM-based model template
+- **`internal/templates/controller.tpl`** - HTTP controller template
+
+These templates generate code that follows the same patterns as the User model and controller.
+
+### Database Operations
+
+All models include standard GORM operations:
+
+- `Create(db *gorm.DB) error` - Create a new record
+- `Update(db *gorm.DB) error` - Update an existing record  
+- `Delete(db *gorm.DB) error` - Delete a record
+- `GetAll[Model]s(db *gorm.DB) ([]Model, error)` - Get all records
+- `Get[Model]ByID(db *gorm.DB, id uint) (*Model, error)` - Get by ID
+- `TableName() string` - Custom table naming
+
 ### Environment-Specific Configuration
 
-For different environments (development, staging, production), create separate `.env` files:
+For different environments, create separate `.env` files:
 
 - `.env.development`
 - `.env.staging`
 - `.env.production`
 
-Load the appropriate file based on your deployment environment.
+### Testing
 
-### Database Migrations
-
-The framework uses GORM's auto-migration feature. For production environments, you might want to implement more sophisticated migration handling.
-
-## Docker Support
-
-### Development with Docker
+Test your database connection:
 
 ```bash
-# Start PostgreSQL only
-docker-compose up -d
-
-# Stop PostgreSQL
-docker-compose down
+go run . db:test
 ```
 
-### Full Docker Setup (Future Enhancement)
+This will validate your database configuration and connection.
 
-You can extend the `docker-compose.yml` to include the Go application:
+## Recent Updates
 
-```yaml
-services:
-  app:
-    build: .
-    ports:
-      - "3003:3003"
-    depends_on:
-      - postgres
-    environment:
-      - DB_HOST=postgres
-```
+### v0.2.0 - Global Request/Response Logging
+
+- ✅ **Global HTTP Middleware** - Automatic request/response logging for all endpoints
+- ✅ **Comprehensive Request Tracking** - Method, URL, headers, body, client IP, user agent
+- ✅ **Detailed Response Logging** - Status codes, headers, body, content type
+- ✅ **Performance Monitoring** - Request duration and timing metrics
+- ✅ **Security Features** - Automatic redaction of sensitive headers (Authorization, Cookie)
+- ✅ **Smart Filtering** - Excludes health checks and static files to reduce log noise
+- ✅ **Log Retrieval API** - RESTful endpoint to query and filter logs
+- ✅ **CORS Support** - Built-in CORS middleware for frontend integration
+- ✅ **Request ID Tracking** - Unique request identifiers for tracing
+
+### v0.1.1 - Command Refactoring
+
+- ✅ **Separated command functions** from `main.go` into `command.go`
+- ✅ **Cleaner main.go** - Now only handles CLI routing
+- ✅ **Improved maintainability** - Command implementations are organized
+- ✅ **Fixed model template** - Updated to use GORM instead of raw SQL
+
+### Model Template Improvements
+
+The model template (`internal/templates/model.tpl`) has been updated to:
+- Use GORM instead of raw SQL queries
+- Include proper struct tags for JSON and GORM
+- Follow the same patterns as the User model
+- Generate CRUD methods that work with GORM
 
 ## Contributing
 
@@ -574,96 +676,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-If you encounter any issues or have questions, please:
+If you encounter any issues or have questions:
 
-1. Check the [existing issues](https://github.com/your-username/WentFramework/issues)
-2. Create a new issue if your problem isn't already reported
-3. Provide detailed information about your environment and the issue
-
-## Roadmap & Planned Features
-
-WentFramework is actively being developed. Here are the upcoming features and improvements planned for future releases:
-
-### ✅ **Completed Features**
-- **Auto-Swagger Generation** - Automatic OpenAPI/Swagger documentation generation from models, controllers, and routes
-- **Interactive API Documentation** - Live Swagger UI with testing capabilities
-- **Reflection-based Schema Generation** - Automatic model schema extraction
-
-### 🔒 **Middleware System**
-- **Authentication Middleware** - JWT-based authentication for protected routes
-- **Authorization Middleware** - Role-based access control (RBAC)
-- **CORS Middleware** - Cross-origin resource sharing configuration
-- **Rate Limiting** - API rate limiting to prevent abuse
-- **Custom Middleware** - Easy-to-implement custom middleware interface
-
-### 📊 **Logging & Observability**
-- **Structured Logging** - JSON-formatted logs with configurable levels
-- **Request/Response Logging** - Automatic HTTP request and response logging
-- **OpenTelemetry Integration** - Distributed tracing and metrics collection
-- **Performance Monitoring** - Request duration and performance metrics
-- **Error Tracking** - Enhanced error reporting and stack traces
-
-### ✅ **Request Validation**
-- **Input Validation** - Automatic request body validation with custom rules
-- **Schema Validation** - JSON schema-based validation
-- **Type Safety** - Strong typing for request/response data
-- **Custom Validators** - Extensible validation system
-- **Sanitization** - Input sanitization to prevent XSS and injection attacks
-
-### 📦 **Response Management**
-- **Resource Classes** - Structured response formatting for single resources
-- **Collection Classes** - Standardized collection responses with metadata
-- **Response Transformers** - Data transformation before sending responses
-- **Conditional Responses** - ETags and conditional request handling
-- **Content Negotiation** - Support for multiple response formats (JSON, XML, etc.)
-
-### 📄 **Pagination System**
-- **Cursor-based Pagination** - Efficient pagination for large datasets
-- **Offset-based Pagination** - Traditional page-based pagination
-- **Configurable Page Sizes** - Customizable pagination parameters
-- **Pagination Metadata** - Rich pagination information in responses
-- **Search Integration** - Pagination combined with search and filtering
-
-### 🚀 **Additional Planned Features**
-- **API Versioning** - Support for multiple API versions
-- **Background Jobs** - Queue system for asynchronous tasks
-- **Caching Layer** - Redis integration for caching
-- **File Upload Handling** - Multipart file upload support
-- **WebSocket Support** - Real-time communication capabilities
-- **Health Checks** - Advanced health monitoring endpoints
-- **Database Seeders** - Automated database seeding for development
-- **Testing Utilities** - Built-in testing helpers and assertions
-
-### 📅 **Release Timeline**
-
-| Feature | Priority | Status |
-|---------|----------|--------|
-| Auto-Swagger Generation | High | ✅ **Completed** |
-| Middleware System | High | v0.2.0 |
-| Request Validation | High | v0.2.0 |
-| Logging & OpenTelemetry | High | v0.3.0 |
-| Response Resources | Medium | v0.3.0 |
-| Pagination Methods | Medium | v0.4.0 |
-| Background Jobs | Low | v0.5.0 |
-| WebSocket Support | Low | v0.6.0 |
-
-### 🤝 **Contributing to Planned Features**
-
-We welcome contributions to any of these planned features! If you're interested in implementing any of these features:
-
-1. **Check the Issues** - Look for existing issues related to the feature
-2. **Create a Discussion** - Start a discussion about your implementation approach
-3. **Fork & Implement** - Create a fork and implement the feature
-4. **Submit PR** - Submit a pull request with your implementation
-
-### 💡 **Feature Requests**
-
-Have an idea for a feature not listed here? We'd love to hear about it:
-
-1. Open a [Feature Request Issue](https://github.com/ekinata/WentFramework/issues/new)
-2. Describe the feature and its use case
-3. Participate in the discussion with the community
+1. Check the [existing issues](https://github.com/ekinata/WentFramework/issues)
+2. Create a new issue with detailed information
+3. Provide your environment details and the specific issue
 
 ---
 
 **Happy coding with WentFramework! 🚀**
+
+*Built with ❤️ for developers who want to go fast and build great APIs.*

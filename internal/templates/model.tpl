@@ -1,3 +1,8 @@
+// Model Struct used for GORM ORM
+// This struct defines the fields and methods for the {{.ModelName}} model
+// It includes ID, CreatedAt, and UpdatedAt fields, along with methods for CRUD operations
+// The model is designed to work with GORM, a popular ORM library for Go
+
 package models
 
 import (
@@ -8,6 +13,7 @@ import (
 
 type {{.ModelName}} struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
+    // ... Add your model fields here
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
