@@ -50,6 +50,11 @@ func (m *{{.ModelName}}) Update(db *gorm.DB) error {
 	return db.Save(m).Error
 }
 
+// UpdateOrCreate updates a {{.ModelName}} or creates it if it doesn't exist
+func (m *{{.ModelName}}) UpdateOrCreate(db *gorm.DB) error {
+	return db.Where("id = ?", m.ID).Assign(m).FirstOrCreate(m).Error
+}
+
 // Delete deletes a {{.ModelName}}
 func (m *{{.ModelName}}) Delete(db *gorm.DB) error {
 	return db.Delete(m).Error

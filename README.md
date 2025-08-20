@@ -635,24 +635,32 @@ This will validate your database configuration and connection.
 
 ## Recent Updates
 
-### v0.2.0 - Global Request/Response Logging
+### v0.2.1 - Logging & Middleware Improvements (August 2025)
+- 📝 Logging system refactored for better performance and reliability
+- 🔄 Global request/response logging middleware now wraps all routes
+- 🛡️ Sensitive data redaction and smart filtering improved
+- 🗄️ Database logging table migration issues fixed
+- 🧩 Middleware chain supports CORS, RequestID, and custom middlewares
+- 🛠️ All built-in log usages replaced with wentlog package
+- 📖 README and LOG.md updated with new features and usage examples
+- 🐞 Bug fixes and codebase cleanup
 
-- ✅ **Global HTTP Middleware** - Automatic request/response logging for all endpoints
-- ✅ **Comprehensive Request Tracking** - Method, URL, headers, body, client IP, user agent
-- ✅ **Detailed Response Logging** - Status codes, headers, body, content type
-- ✅ **Performance Monitoring** - Request duration and timing metrics
-- ✅ **Security Features** - Automatic redaction of sensitive headers (Authorization, Cookie)
-- ✅ **Smart Filtering** - Excludes health checks and static files to reduce log noise
-- ✅ **Log Retrieval API** - RESTful endpoint to query and filter logs
-- ✅ **CORS Support** - Built-in CORS middleware for frontend integration
-- ✅ **Request ID Tracking** - Unique request identifiers for tracing
+### v0.2.0 - Global Request/Response Logging
+- ✅ Global HTTP Middleware - Automatic request/response logging for all endpoints
+- ✅ Comprehensive Request Tracking - Method, URL, headers, body, client IP, user agent
+- ✅ Detailed Response Logging - Status codes, headers, body, content type
+- ✅ Performance Monitoring - Request duration and timing metrics
+- ✅ Security Features - Automatic redaction of sensitive headers (Authorization, Cookie)
+- ✅ Smart Filtering - Excludes health checks and static files to reduce log noise
+- ✅ Log Retrieval API - RESTful endpoint to query and filter logs
+- ✅ CORS Support - Built-in CORS middleware for frontend integration
+- ✅ Request ID Tracking - Unique request identifiers for tracing
 
 ### v0.1.1 - Command Refactoring
-
-- ✅ **Separated command functions** from `main.go` into `command.go`
-- ✅ **Cleaner main.go** - Now only handles CLI routing
-- ✅ **Improved maintainability** - Command implementations are organized
-- ✅ **Fixed model template** - Updated to use GORM instead of raw SQL
+- ✅ Separated command functions from `main.go` into `command.go`
+- ✅ Cleaner main.go - Now only handles CLI routing
+- ✅ Improved maintainability - Command implementations are organized
+- ✅ Fixed model template - Updated to use GORM instead of raw SQL
 
 ### Model Template Improvements
 
