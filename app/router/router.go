@@ -7,7 +7,6 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"went-framework/app/controllers"
 	"went-framework/internal/middleware"
 	"went-framework/internal/swagger"
 
@@ -38,16 +37,6 @@ func SetupRoutes() *mux.Router {
 	setupOtherRoutes(api)
 
 	return router
-}
-
-// setupUserRoutes configures all user-related routes
-func setupUserRoutes(api *mux.Router) {
-	// User routes
-	api.HandleFunc("/users", controllers.GetAllUsers).Methods("GET")
-	api.HandleFunc("/users/{id}", controllers.GetUser).Methods("GET")
-	api.HandleFunc("/users", controllers.CreateUser).Methods("POST")
-	api.HandleFunc("/users/{id}", controllers.UpdateUser).Methods("PUT")
-	api.HandleFunc("/users/{id}", controllers.DeleteUser).Methods("DELETE")
 }
 
 func setupOtherRoutes(api *mux.Router) {

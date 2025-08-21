@@ -9,13 +9,26 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"github.com/go-playground/validator/v10"
 )
 
+var validate = validator.New()
+
 type {{.ModelName}} struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-    // ... Add your model fields here
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID        uint      `json:"id" gorm:"primaryKey,autoIncrement"`
+    // ... Add your model fields here.
+	// For further information: https://wentframework.com/docs/models
+	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+}
+
+func (m *{{.ModelName}}) Validate() error {
+	return validate.Struct(m)
+}
+
+// TableName specifies the table name for GORM
+func ({{.ModelName}}) TableName() string {
+	return "{{.TableName}}"
 }
 
 // TableName specifies the table name for GORM

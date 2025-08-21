@@ -8,9 +8,9 @@ import (
 	"text/template"
 	"time"
 	"went-framework/app/database"
+	"went-framework/app/router"
 	wentlog "went-framework/internal/logger"
 	"went-framework/internal/swagger"
-	"went-framework/router"
 )
 
 // StartServer starts the HTTP server

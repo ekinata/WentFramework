@@ -11,8 +11,8 @@ import (
 	"strings"
 	"text/template"
 	"went-framework/app/database"
+	"went-framework/app/router"
 	"went-framework/internal/swagger"
-	"went-framework/router"
 )
 
 // StartServer starts the HTTP server
