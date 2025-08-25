@@ -692,6 +692,29 @@ If you encounter any issues or have questions:
 
 ---
 
+## CHANGES
+
+- Gorilla mux to go-chi/chi/v5
+
+### Reasons:
+| Kriter                            | Gorilla Mux                                                                        | Go-Chi v5                                                                        |
+| --------------------------------- | ---------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| **Durum**                         | Archived (güncellemeler durdu) ([LogRocket Blog][1], [GitHub][2])                  | Aktif geliştirme süreci devam ediyor ([GitHub][3])                               |
+| **Özellik Esnekliği**             | Header, regex, route reversing, subrouter                                          | Middleware grupları, inline middleware, subrouter                                |
+| **Performans & Kaynak Kullanımı** | Yüksek rota sayısında daha fazla yük ve gecikme ([GitHub][4], [Aprenda Golang][5]) | Daha düşük bellek/doğrudan kullanım, daha fazla throughput ([Aprenda Golang][5]) |
+| **Kod Yazım Kolaylığı**           | Klasik, daha manuel bir yapı                                                       | Modüler ve okunaklı yapı ([GitHub][2], [Medium][6])                              |
+| **Topluluk & Gelecek**            | Durmuş bir projeye yatırım yapmak… şüpheli olabilir.                               | Güncel ve geleceğe yön veren bir topluluk.                                       |
+
+[1]: https://blog.logrocket.com/routing-go-gorilla-mux/?utm_source=chatgpt.com "An intro to routing in Go with Gorilla Mux"
+[2]: https://github.com/go-chi/chi?utm_source=chatgpt.com "go-chi/chi: lightweight, idiomatic and composable router for ..."
+[3]: https://github.com/go-chi/chi/blob/master/CHANGELOG.md?utm_source=chatgpt.com "chi/CHANGELOG.md at master · go-chi/chi"
+[4]: https://github.com/cypriss/golang-mux-benchmark?utm_source=chatgpt.com "cypriss/golang-mux-benchmark: Performance shootout of ..."
+[5]: https://aprendagolang.com.br/benchmark-dos-routers-http-chi-vs-gorilla-mux/?utm_source=chatgpt.com "Benchmark dos routers http: chi vs gorilla mux"
+[6]: https://medium.com/%40hasanshahjahan/a-deep-dive-into-gin-chi-and-mux-in-go-33b9ad861e1b?utm_source=chatgpt.com "A Deep Dive into Gin, Chi, and Mux in Go"
+
+---
+
+
 **Happy coding with WentFramework! 🚀**
 
 *Built with ❤️ for developers who want to go fast and build great APIs.*
